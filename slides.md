@@ -114,12 +114,19 @@ transition: fade-out
 ---
 
 # Limitations of native threads
-    * Each native thread is mapped to corresponding kernel thread
-    * Creating a new thread is a heavy operation
-    * The default stack size is 512Kb on 32 bit and 1Mb for 64bit OS
-    * Context switching is heavy - this increases as no of threads increases
-    * So, The JDK' caps the application's throughput to a level well below 
-      what the hardware can support
+<div class="container" style="display: flex;">
+    <div v-click style="flex-grow: 3;">
+        <img src="/images/native_threads.png" class="m-0 h-100 rounded shadow" />
+    </div>
+ <div  style="flex-grow: 2; margin-left: 50px;"> <br> <br>
+    <p v-click> Each native thread is mapped to corresponding kernel thread </p>
+    <p v-click> Creating a new thread is a heavy operation </p>
+    <p v-click> The default stack size is 512Kb on 32 bit and 1Mb for 64bit OS </p>
+    <p v-click> Context switching is heavy - this increases as no of threads increases </p>
+    <p v-click> So, The JDK' caps the application's throughput to a level well below 
+      what the hardware can support </p>
+ </div>
+</div>
 
 ---
 transition: fade-out
@@ -140,11 +147,19 @@ transition: fade-out
 ---
 
 # So, Virtual Threads:
-    * Uses, thread-per-request style more efficiently 
-    * JVM handles the lifecycle and scheduling
-    * Can achive same scale as asyncrounous style but more transparently 
-    * Cheap to creat and almost infinitely plentiful
-    * Does not require learning new concepts
+
+<div class="container" style="display: flex;">
+    <div v-click style="flex-grow: 3;">
+        <img src="/images/fibers.png" class="m-0 h-100 rounded shadow" />
+    </div>
+ <div  style="flex-grow: 2; margin-left: 50px;"> <br> <br>
+    <p v-click> Uses, thread-per-request style more efficiently </p>
+    <p v-click> JVM handles the lifecycle and scheduling </p>
+    <p v-click> Can achieve same scale as asynchronous style but more transparently</p>
+    <p v-click> Cheap to creat and almost infinitely plentiful</p>
+    <p v-click> Does not require learning new concepts </p>
+ </div>
+</div>
 
 ---
 transition: fade-out
@@ -152,7 +167,7 @@ transition: fade-out
 
 # How to create?
 
-```ts {all|1|4|1-8|9|all}
+```ts {all|1|4|1-8|none}
 try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
     IntStream.range(0, 10_000).forEach(i -> {
         executor.submit(() -> {
@@ -162,7 +177,8 @@ try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
     });
 } 
 ```
-
+<br>
+<p style="color:gold;" v-click> let's see things in action</p>
 
 [^1]: [Learn More](https://sli.dev/guide/syntax.html#line-highlighting)
 
