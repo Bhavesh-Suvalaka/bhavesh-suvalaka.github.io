@@ -2,9 +2,10 @@
   "name": "slidev",
   "private": true,
   "scripts": {
-    "build": "slidev build",
+    "build": "slidev build; npm run copy:assets;",
     "dev": "slidev --open",
-    "export": "slidev export"
+    "export": "slidev export",
+    "copy:assets": "cp './images/sahaj.png' 'dist/assets' "
   },
   "dependencies": {
     "@slidev/cli": "^0.43.5",
