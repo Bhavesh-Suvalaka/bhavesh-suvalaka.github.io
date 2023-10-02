@@ -1,22 +1,19 @@
 ---
 theme: seriph
 background: ./images/background.jpg
+layout: cover
 class: text-center
 highlighter: shiki
 lineNumbers: false
-info: |
-  ## Slidev Starter Template
-  Presentation slides for developers.
-
-  Learn more at [Sli.dev](https://sli.dev)
+info: 
 drawings:
   persist: false
-transition: slide-left
+transition: fade-out
 title: Loom
 mdc: true
 ---
 
-# Java Loom - Fiber
+# Java Loom - Virtual thread
 
 ### Synchronously-Asynchronous
 
@@ -33,33 +30,24 @@ mdc: true
   </a>
 </div>
 
-<!--
-The last comment block of each slide will be treated as slide notes. It will be visible and editable in Presenter Mode along with the slide. [Read more in the docs](https://sli.dev/guide/syntax.html#notes)
--->
-
----
-transition: fade-out
 ---
 
 # Agenda
 
-- 💻 **Need of Concurrency** - Low latency, high throughput, huge scale
-- 🚕 **Journey of Concurrency** - processes, threads, async programming
-- 🧵 **Limitations of native threads** - Bound by kernel threads
-- 🪡 **So, Loom** - Brief introduction
-- 𐄷 **Compare Loom with Native threads** - Performance difference and how and why ?
-- 👀 **Caveats** - Things to lookout.
-- ❓ **Questions** - feedback time!
-
-<br>
-<br>
+- 💻 **Need of Concurrency**
+- 🚕 **Journey of Concurrency**
+- 🧵 **Limitations of native threads**
+- 🪡 **So, Loom**
+- 𐄷  **Virtual vs Platform threads**
+- 🚦 **Adoption guide**
+- ❓ **Questions and feedback**
 
 <style>
 
 h1 {
 
   background-color: #2B90B6;
-
+  
   background-image: linear-gradient(45deg, #4EC5D4 10%, #146b8c 20%);
 
   background-size: 100%;
@@ -73,77 +61,104 @@ h1 {
   -moz-text-fill-color: transparent;
 
 }
+
 </style>
 ---
-layout: default
+
+# Need of concurrency
+<br>
+<p v-click> To utilise the CPU properly </p>
+<p v-click> To full-fill the need of modern application </p>
+<p v-click> 
+        <li> High throughput </li>
+        <li> Low latency </li>
+</p>
+
 ---
+
 # Journey of Concurrency
-    
-## Need of concurrency
-    * To utilise the CPU properly
-    * To full-fill the need of modern application
-        <v-click>
-          * High throughput
-          * Low latency
-        </v-click>
-
-## Evolution   
-    * Parallel vs concurrent processes 
-    * Processes and threads
-    * Multi-threading
-    * Asyncrounous 
+<br>
+<p v-click> Parallel vs concurrent </p> 
+<p v-click> Processes and threads </p>
+<p v-click> Multi-threading </p>
+<p v-click> Asynchronous style </p> 
 
 ---
-transition: fade-out
----
+
 # thread-per-request style
-    Pros:
-        * Easy to understand and program
-        * Easy to debug and profile
-        * it uses the platform's unit of concurrency to represent the application's unit of concurrency
-    Cons:
-        * The scalability of server application is governed by Little's law
-            * L(throughput) = 𝜆(concurrent request) * W(latenncy)
-            * 200(request per second) = 10 * 50ms
-            * 2000(request per second) = ?
-            * 2000(request per second) = 100(concurrent request) * 50ms
-        * No of threads needs to increase to keepup with this throughput
+<br>
+
+```ts {all|2|3|4|6-8|all}
+    public List<Product> recommendProducts(String customerId) {
+        List<Order> orders = orderService.fetchOrderHistory(customerId);
+        List<CustomerPreference> customerPreference = preferenceService.fetchCustomerPreferences(customerId);
+        Optional<Customer> customer = customerService.fetchCustomer(customerId);
+
+        return customer
+                .map(it -> fetchProductRecommendation(it, customerPreference, orders))
+                .orElse(Collections.emptyList());
+
+    } 
+```
+<!--
+
+Easy to understand and program.
+Easy to debug and profile.
+the platform's unit of concurrency is the application's unit of concurrency.
+
+ The scalability of server application is governed by Little's law 
+    <li> L(throughput) = 𝜆(concurrent request) * W(latenncy) </li>
+    <li v-click> 200(request per second) = 10 * 50ms </li>
+    <li v-click> 2000(request per second) = ? </li>
+    <li v-click> 2000(request per second) = 100(concurrent request) * 50ms </li>
+-->
 
 ---
-transition: fade-out
----
 
-# Limitations of native threads
+# Limitations of platform threads
+
 <div class="container" style="display: flex;">
     <div v-click style="flex-grow: 3;">
         <img src="/images/native_threads.png" class="m-0 h-100 rounded shadow" />
     </div>
  <div  style="flex-grow: 2; margin-left: 50px;"> <br> <br>
     <p v-click> Each native thread is mapped to corresponding kernel thread </p>
-    <p v-click> Creating a new thread is a heavy operation </p>
-    <p v-click> The default stack size is 512Kb on 32 bit and 1Mb for 64bit OS </p>
-    <p v-click> Context switching is heavy - this increases as no of threads increases </p>
-    <p v-click> So, The JDK' caps the application's throughput to a level well below 
-      what the hardware can support </p>
+    <p v-click> Thread creation is heavy operation </p>
+    <p v-click> High memory footprint </p>
+    <p v-click> Context switching is heavy </p>
+    <p v-click>JDK caps the application's throughput  </p>
  </div>
 </div>
 
 ---
-transition: fade-out
+
+# Asynchronous style
+
+<div class="container" style="display: flex;">
+    <div v-click style="flex-grow: 1;">
+        <img src="/images/seqencial_execution.png" class="m-5 h-70 w-70 rounded shadow" />
+    </div>
+    <div v-click style="flex-grow: 2;">
+        <img  src="/images/concurrent_execution.png" class="m-5 h-70 rounded shadow" />
+    </div>
+</div>
+
 ---
 
 # Asynchronous style
-    * Returns thread to a pool when it waits for I/O operation to complete
-    * Can achieve high number of concurrent operation w/o consuming high no of threads
-    * But it come with higher price:
-        * Learning curve for async style 
-        * Increases verbosity - for e.g reactive programing
-        * Stack trace provides no usable context
-        * Debugging and profiling becomes hard
-        * the application's unit of concurrency  is no longer the platform's unit of concurrency.
 
----
-transition: fade-out
+<div class="container" style="display: flex;">
+    <div style="flex-grow: 2;">
+        <img  src="/images/concurrent_execution.png" class="m-5 h-70 rounded shadow" />
+    </div>
+    <div  style="flex-grow: 2; margin-left: 50px;"> <br> <br>
+        <p v-click> Stack traces provide no usable context. </p>
+        <p v-click> Debugging and profiling becomes hard </p>
+        <p v-click> Compose less elegantly.</p>
+        <p v-click> Application's unit of concurrency is no longer the platform's unit of concurrency.</p>
+     </div>
+</div>
+
 ---
 
 # So, Virtual Threads:
@@ -153,16 +168,14 @@ transition: fade-out
         <img src="/images/fibers.png" class="m-0 h-100 rounded shadow" />
     </div>
  <div  style="flex-grow: 2; margin-left: 50px;"> <br> <br>
-    <p v-click> Uses, thread-per-request style more efficiently </p>
+    <p v-click> Uses thread-per-request style more efficiently </p>
     <p v-click> JVM handles the lifecycle and scheduling </p>
-    <p v-click> Can achieve same scale as asynchronous style but more transparently</p>
-    <p v-click> Cheap to creat and almost infinitely plentiful</p>
+    <p v-click> Can achieve same scale as asynchronous</p>
+    <p v-click> Cheap to create and almost infinitely plentiful</p>
     <p v-click> Does not require learning new concepts </p>
  </div>
 </div>
 
----
-transition: fade-out
 ---
 
 # How to create?
@@ -177,10 +190,135 @@ try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
     });
 } 
 ```
+
 <br>
 <p style="color:gold;" v-click> let's see things in action</p>
 
-[^1]: [Learn More](https://sli.dev/guide/syntax.html#line-highlighting)
+---
+max-height: 100%
+---
+
+# Adoption Guide
+<p v-click>
+    1. Write blocking code using Thread-Per-Request style
+</p>
+
+<v-click>
+
+```ts {all}
+CompletableFuture.supplyAsync(info::getUrl, pool)
+   .thenCompose(url -> getBodyAsync(url, HttpResponse.BodyHandlers.ofString()))
+   .thenApply(info::findImage)
+   .thenCompose(url -> getBodyAsync(url, HttpResponse.BodyHandlers.ofByteArray()))
+   .thenApply(info::setImageData)
+   .thenAccept(this::process)
+   .exceptionally(t -> { t.printStackTrace(); return null; });
+```
+</v-click>
+
+<v-click>
+
+```ts {all}
+
+try {
+   String page = getBody(info.getUrl(), HttpResponse.BodyHandlers.ofString());
+   String imageUrl = info.findImage(page);
+   byte[] data = getBody(imageUrl, HttpResponse.BodyHandlers.ofByteArray());   
+   info.setImageData(data);
+   process(info);
+} catch (Exception ex) {
+   t.printStackTrace();
+}
+
+```
+</v-click>
+
+---
+
+<p> 2. Never pool a virtual thread </p>
+
+<v-click>
+
+```ts
+Future<ResultA> f1 = sharedThreadPoolExecutor.submit(task1);
+Future<ResultB> f2 = sharedThreadPoolExecutor.submit(task2);
+// ... use futures
+```
+</v-click>
+
+<v-click>
+
+```ts
+try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+   Future<ResultA> f1 = executor.submit(task1);
+   Future<ResultB> f2 = executor.submit(task2);
+   // ... use futures
+}
+```
+</v-click>
+
+---
+
+<p> 3. Use Semaphores to Limit Concurrency</p>
+
+<v-click>
+
+```ts {all|1|4|6|8|all}
+Semaphore sem = new Semaphore(10);
+...
+Result foo() {
+    sem.acquire();
+    try {
+        return callLimitedService();
+    } finally {
+        sem.release();
+    }
+}
+```
+
+</v-click>
+
+---
+
+<p> 4. Don't Cache Expensive Reusable Objects in Thread-Local Variables </p>
+<br>
+
+```ts {all}
+static final ThreadLocal<SimpleDateFormat> cachedFormatter = 
+       ThreadLocal.withInitial(SimpleDateFormat::new);
+
+void foo() {
+  ...
+	cachedFormatter.get().format(...);
+	...
+} 
+```
+---
+
+<p> 5. Avoid lengthy and frequent pinning. </p> 
+
+<v-click>
+
+```ts {all|1-3|7-12|}
+synchronized(lockObj) {
+    frequentIO();
+}
+
+---
+
+lock.lock();
+try {
+    frequentIO();
+} finally {
+    lock.unlock();
+}
+```
+</v-click>
+
+<style>
+    
+</style>
+
 
 <style>
 .footnotes-sep {
@@ -195,6 +333,15 @@ try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 </style>
 
 ---
-# Learn More
 
-[Documentations](https://sli.dev) · [GitHub](https://github.com/slidevjs/slidev) · [Showcases](https://sli.dev/showcases.html)
+# Feedback and questions?
+
+---
+
+# Learn More
+[Loom Proposal](https://cr.openjdk.org/~rpressler/loom/Loom-Proposal.html)
+[Second Preview](https://openjdk.org/jeps/425)
+[Documentations](https://docs.oracle.com/en/java/javase/21/core/virtual-threads.html#GUID-DC4306FC-D6C1-4BCC-AECE-48C32C1A8DAA) · 
+
+[GitHub](https://github.com/Bhavesh-Suvalaka/fibers) 
+[Showcases](https://bhavesh-suvalaka.github.io/loom-slides/)
