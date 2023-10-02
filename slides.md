@@ -1,6 +1,6 @@
 ---
 theme: seriph
-background: ./images/sahaj.png
+background: sahaj.png
 layout: cover
 class: text-center
 highlighter: shiki
