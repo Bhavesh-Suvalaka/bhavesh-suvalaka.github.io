@@ -40,9 +40,9 @@ jobs:
           yarn install   
       - name: Build application
         run: |
-          pwd; ls
           yarn build --base /${{ github.event.repository.name }}/
           cp dist/index.html dist/404.html       
+          cp images/sahaj.png dist/assets
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
