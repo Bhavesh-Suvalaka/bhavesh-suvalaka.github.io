@@ -5,7 +5,7 @@
     "build": "slidev build; npm run copy:assets;",
     "dev": "slidev --open",
     "export": "slidev export",
-    "copy:assets": "pwd; ls; cp images/sahaj.png dist/assets "
+    "copy:assets": "cp \"images/sahaj.png\" \"dist/assets\""
   },
   "dependencies": {
     "@slidev/cli": "^0.43.5",
