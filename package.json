@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "copy:assets": "rsync -av images/sahaj.png dist/assets",
-    "build": "slidev build && npm run copy:assets;",
+    "build": "slidev build && yarn copy:assets;",
     "dev": "slidev --open",
     "export": "slidev export"
   },
