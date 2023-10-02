@@ -1,6 +1,6 @@
 ---
 theme: seriph
-background: ./images/background.jpg
+background: ./images/sahaj.png
 layout: cover
 class: text-center
 highlighter: shiki
@@ -74,6 +74,7 @@ h1 {
         <li> Low latency </li>
 </p>
 
+<img src="/images/sahaj.png" class="m-0 h-0 rounded shadow" />
 ---
 
 # Journey of Concurrency
@@ -339,9 +340,9 @@ try {
 ---
 
 # Learn More
-[Loom Proposal](https://cr.openjdk.org/~rpressler/loom/Loom-Proposal.html)
-[Second Preview](https://openjdk.org/jeps/425)
-[Documentations](https://docs.oracle.com/en/java/javase/21/core/virtual-threads.html#GUID-DC4306FC-D6C1-4BCC-AECE-48C32C1A8DAA) · 
+[Loom Proposal](https://cr.openjdk.org/~rpressler/loom/Loom-Proposal.html) <br/>
+[Second Preview](https://openjdk.org/jeps/425) <br/>
+[Documentations](https://docs.oracle.com/en/java/javase/21/core/virtual-threads.html#GUID-DC4306FC-D6C1-4BCC-AECE-48C32C1A8DAA)<br/> 
 
-[GitHub](https://github.com/Bhavesh-Suvalaka/fibers) 
-[Showcases](https://bhavesh-suvalaka.github.io/loom-slides/)
+[GitHub](https://github.com/Bhavesh-Suvalaka/fibers) <br/> 
+[Showcases](https://bhavesh-suvalaka.github.io/loom-slides/) <br/>
