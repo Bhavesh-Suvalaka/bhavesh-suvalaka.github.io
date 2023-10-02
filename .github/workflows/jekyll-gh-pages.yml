@@ -37,18 +37,12 @@ jobs:
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
       - name: Install dependencies
         run: |
-          yarn install
-      - name: Debug Environment
-        run: |
-          echo "Current directory: $(pwd)"
-          echo "Contents of dist/assets: $(ls dist/assets)"
-        shell: bash     
+          yarn install   
       - name: Build application
         run: |
           pwd; ls
           yarn build --base /${{ github.event.repository.name }}/
-          cp dist/index.html dist/404.html
-          
+          cp dist/index.html dist/404.html       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
