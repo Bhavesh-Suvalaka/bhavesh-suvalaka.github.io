@@ -38,6 +38,11 @@ jobs:
       - name: Install dependencies
         run: |
           yarn install
+      - name: Debug Environment
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Contents of dist/assets: $(ls dist/assets)"
+        shell: bash     
       - name: Build application
         run: |
           pwd; ls
