@@ -2,10 +2,11 @@
 theme: seriph
 background: sahaj.png
 layout: cover
+canvasWidth: 890
 class: text-center
 highlighter: shiki
 lineNumbers: false
-info: 
+info:
 drawings:
   persist: false
 transition: fade-out
@@ -35,10 +36,12 @@ mdc: true
 # Agenda
 
 - 💻 **Need of Concurrency**
-- 🚕 **Journey of Concurrency**
+- 🔗 **Thread-Per-Request-Style**
 - 🧵 **Limitations of native threads**
+- 😵‍💫 **Async - Non blocking**
 - 🪡 **So, Loom**
 - 𐄷  **Virtual vs Platform threads**
+- ⚙  **How ?**
 - 🚦 **Adoption guide**
 - ❓ **Questions and feedback**
 
@@ -66,6 +69,7 @@ h1 {
 ---
 
 # Need of concurrency
+
 <br>
 <p v-click> To utilise the CPU properly </p>
 <p v-click> To full-fill the need of modern application </p>
@@ -74,44 +78,33 @@ h1 {
         <li> Low latency </li>
 </p>
 
-<img src="/images/sahaj.png" class="m-0 h-0 rounded shadow" />
----
-
-# Journey of Concurrency
-<br>
-<p v-click> Parallel vs concurrent </p> 
-<p v-click> Processes and threads </p>
-<p v-click> Multi-threading </p>
-<p v-click> Asynchronous style </p> 
-
 ---
 
 # thread-per-request style
+
 <br>
 
-```ts {all|2|3|4|6-8|all}
+<v-after>
+
+```ts {all|2|3|4|6-8|all} 
     public List<Product> recommendProducts(String customerId) {
-        List<Order> orders = orderService.fetchOrderHistory(customerId);
-        List<CustomerPreference> customerPreference = preferenceService.fetchCustomerPreferences(customerId);
         Optional<Customer> customer = customerService.fetchCustomer(customerId);
+        List<CustomerPreference> custPref = preferenceService.fetchCustomerPrefs(customerId);
+        List<Order> orders = orderService.fetchOrderHistory(customerId);
 
         return customer
-                .map(it -> fetchProductRecommendation(it, customerPreference, orders))
+                .map(it -> prepareProductRecommendation(it, custPref, orders))
                 .orElse(Collections.emptyList());
 
-    } 
+    }
 ```
+
+</v-after>
+
 <!--
-
-Easy to understand and program.
-Easy to debug and profile.
-the platform's unit of concurrency is the application's unit of concurrency.
-
- The scalability of server application is governed by Little's law 
-    <li> L(throughput) = 𝜆(concurrent request) * W(latenncy) </li>
-    <li v-click> 200(request per second) = 10 * 50ms </li>
-    <li v-click> 2000(request per second) = ? </li>
-    <li v-click> 2000(request per second) = 100(concurrent request) * 50ms </li>
+Throughput = no of con req / latency 
+10/ 50 ms = 200 req /s 
+1000  20000 req/ s
 -->
 
 ---
@@ -146,7 +139,7 @@ the platform's unit of concurrency is the application's unit of concurrency.
 
 ---
 
-# Asynchronous style
+# Asynchronous- Non Blocking - style
 
 <div class="container" style="display: flex;">
     <div style="flex-grow: 2;">
@@ -166,7 +159,7 @@ the platform's unit of concurrency is the application's unit of concurrency.
 
 <div class="container" style="display: flex;">
     <div v-click style="flex-grow: 3;">
-        <img src="/images/fibers.png" class="m-0 h-100 rounded shadow" />
+        <img src="/images/virtual-threads.png" class="m-0 h-100 rounded shadow" />
     </div>
  <div  style="flex-grow: 2; margin-left: 50px;"> <br> <br>
     <p v-click> Uses thread-per-request style more efficiently </p>
@@ -199,7 +192,33 @@ try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 max-height: 100%
 ---
 
+# How ?
+
+<br/>
+<v-click>Implementation of java.lang.Thread </v-click>
+<v-click>
+<p> It has 2 main construct: 
+        <li> Continuation </li>
+        <li> Scheduler </li>
+</p> 
+</v-click>
+<br/>
+
+--- 
+
+<div>
+    <img src="/images/VT-in-1.png" class="m-0 h-95 rounded shadow" v-click="[0,1]"/>
+    <img src="/images/VT-in-2.png" class="m-0 h-95 rounded shadow" v-click="[1,2]"/>
+    <img src="/images/VT-in-3.png" class="m-0 h-95 rounded shadow" v-click="[2,3]"/>
+    <img src="/images/VT-in-4.png" class="m-0 h-95 rounded shadow" v-click="[3,4]"/>
+    <img src="/images/VT-in-1.png" class="m-0 h-95 rounded shadow" v-click="[4,5]"/>
+    <img src="/images/VT-in-5.png" class="m-0 h-95 rounded shadow" v-click="5"/>
+</div>
+---
+
 # Adoption Guide
+
+<br/>
 <p v-click>
     1. Write blocking code using Thread-Per-Request style
 </p>
@@ -215,6 +234,7 @@ CompletableFuture.supplyAsync(info::getUrl, pool)
    .thenAccept(this::process)
    .exceptionally(t -> { t.printStackTrace(); return null; });
 ```
+
 </v-click>
 
 <v-click>
@@ -232,6 +252,7 @@ try {
 }
 
 ```
+
 </v-click>
 
 ---
@@ -245,6 +266,7 @@ Future<ResultA> f1 = sharedThreadPoolExecutor.submit(task1);
 Future<ResultB> f2 = sharedThreadPoolExecutor.submit(task2);
 // ... use futures
 ```
+
 </v-click>
 
 <v-click>
@@ -256,6 +278,7 @@ try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
    // ... use futures
 }
 ```
+
 </v-click>
 
 ---
@@ -294,6 +317,7 @@ void foo() {
 	...
 } 
 ```
+
 ---
 
 <p> 5. Avoid lengthy and frequent pinning. </p> 
@@ -314,12 +338,17 @@ try {
     lock.unlock();
 }
 ```
+
 </v-click>
 
-<style>
-    
-</style>
+---
 
+<h3>6. Meant for I/O intensive application </h3>
+
+<li v-click> Don't use for CPU intensive application </li>
+<li v-click> Don't use in parallel stream </li>
+
+---
 
 <style>
 .footnotes-sep {
@@ -335,14 +364,17 @@ try {
 
 ---
 
-# Feedback and questions?
+# Questions?
 
 ---
 
 # Learn More
+
 [Loom Proposal](https://cr.openjdk.org/~rpressler/loom/Loom-Proposal.html) <br/>
 [Second Preview](https://openjdk.org/jeps/425) <br/>
-[Documentations](https://docs.oracle.com/en/java/javase/21/core/virtual-threads.html#GUID-DC4306FC-D6C1-4BCC-AECE-48C32C1A8DAA)<br/> 
-
-[GitHub](https://github.com/Bhavesh-Suvalaka/fibers) <br/> 
-[Showcases](https://bhavesh-suvalaka.github.io/loom-slides/) <br/>
+[Documentations](https://docs.oracle.com/en/java/javase/21/core/virtual-threads.html#GUID-DC4306FC-D6C1-4BCC-AECE-48C32C1A8DAA)<br/>
+[Loom notes](https://jdk.java.net/loom/) <br/>
+[SprinBoot Adoption](https://www.infoq.com/news/2023/12/spring-boot-virtual-threads/#:~:text=Spring%20Boot%203.2%20has%20integrated,now%20operate%20on%20virtual%20threads) <br/>
+[All Loom Related blogs](https://inside.java/tag/loom) <br/>
+[One Million Concurrent Connection](https://josephmate.github.io/2022-04-14-max-connections/)<br/>
+[GitHub](https://github.com/Bhavesh-Suvalaka/loom-demo) <br/>
