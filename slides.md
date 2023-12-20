@@ -16,7 +16,7 @@ mdc: true
 
 # Java Loom - Virtual thread
 
-### Synchronously-Asynchronous
+### Synchronously-Non Blocking
 
 <div class="pt-12">
   <span @click="$slidev.nav.next" class="px-2 py-1 rounded cursor-pointer" hover="bg-white bg-opacity-10">
@@ -84,7 +84,7 @@ h1 {
 
 <br>
 
-<v-after>
+<v-click>
 
 ```ts {all|2|3|4|6-8|all} 
     public List<Product> recommendProducts(String customerId) {
@@ -99,13 +99,14 @@ h1 {
     }
 ```
 
-</v-after>
+</v-click>
 
-<!--
-Throughput = no of con req / latency 
-10/ 50 ms = 200 req /s 
-1000  20000 req/ s
--->
+---
+
+# Governs by Little's law
+<br/>
+<p v-click>Throughput = no of con req / latency </p> 
+<p v-click> 10 req/ 50ms = 200 req /s </p>
 
 ---
 
@@ -126,30 +127,38 @@ Throughput = no of con req / latency
 
 ---
 
-# Asynchronous style
+# Thread pooling
+
+<v-click>
+<img src="/images/Thread-pool.png" class="m-0 h-200 rounded shadow" />
+</v-click>
+
+---
+
+# Asynchronous style - Blocking
 
 <div class="container" style="display: flex;">
-    <div v-click style="flex-grow: 1;">
+    <div v-click style="flex-grow:3;">
         <img src="/images/seqencial_execution.png" class="m-5 h-70 w-70 rounded shadow" />
     </div>
     <div v-click style="flex-grow: 2;">
-        <img  src="/images/concurrent_execution.png" class="m-5 h-70 rounded shadow" />
+        <img  src="/images/concurrent_execution.png" class="m-5 h-70 w-130 rounded shadow" />
     </div>
 </div>
 
 ---
 
-# Asynchronous- Non Blocking - style
+# Asynchronous - Non Blocking 
 
 <div class="container" style="display: flex;">
-    <div style="flex-grow: 2;">
-        <img  src="/images/concurrent_execution.png" class="m-5 h-70 rounded shadow" />
+    <div style="flex-grow: 1;">
+        <img  src="/images/concurrent_execution.png" class="m-5 h-70 w-80 rounded shadow" />
     </div>
-    <div  style="flex-grow: 2; margin-left: 50px;"> <br> <br>
+    <div  style="flex-grow: 1; margin-left: 50px;"> <br> <br>
+        <p v-click> No longer simpler </p>
         <p v-click> Stack traces provide no usable context. </p>
         <p v-click> Debugging and profiling becomes hard </p>
-        <p v-click> Compose less elegantly.</p>
-        <p v-click> Application's unit of concurrency is no longer the platform's unit of concurrency.</p>
+        <p v-click> Application's unit of con. != platform's unit of con.</p>
      </div>
 </div>
 
@@ -162,10 +171,10 @@ Throughput = no of con req / latency
         <img src="/images/virtual-threads.png" class="m-0 h-100 rounded shadow" />
     </div>
  <div  style="flex-grow: 2; margin-left: 50px;"> <br> <br>
-    <p v-click> Uses thread-per-request style more efficiently </p>
-    <p v-click> JVM handles the lifecycle and scheduling </p>
-    <p v-click> Can achieve same scale as asynchronous</p>
     <p v-click> Cheap to create and almost infinitely plentiful</p>
+    <p v-click> JVM handles the lifecycle and scheduling </p>
+    <p v-click> Uses thread-per-request style more efficiently </p>
+    <p v-click> Can achieve same scale as asynchronous</p>
     <p v-click> Does not require learning new concepts </p>
  </div>
 </div>
